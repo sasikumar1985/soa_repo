@@ -1,0 +1,88 @@
+<?xml version = "1.0" encoding = "UTF-8" ?>
+<!--
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  Oracle JDeveloper BPEL Designer 
+  
+  Created: Thu Sep 19 10:05:59 GMT+05:30 2013
+  Author:  vinoosubramanian-k
+  Purpose: Asynchronous BPEL Process
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+-->
+<process name="TestDBWrite"
+         targetNamespace="http://xmlns.oracle.com/TestApplication_jws/Project1/TestDBWrite"
+         xmlns="http://schemas.xmlsoap.org/ws/2003/03/business-process/"
+         xmlns:client="http://xmlns.oracle.com/TestApplication_jws/Project1/TestDBWrite"
+         xmlns:ora="http://schemas.oracle.com/xpath/extension"
+         xmlns:bpelx="http://schemas.oracle.com/bpel/extension"
+         xmlns:bpws="http://schemas.xmlsoap.org/ws/2003/03/business-process/"
+         xmlns:ns1="http://xmlns.oracle.com/pcbpel/adapter/db/TestApplication/Project1/TestDB"
+         xmlns:ns2="http://xmlns.oracle.com/pcbpel/adapter/db/top/TestDB"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <!-- 
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        PARTNERLINKS                                                      
+        List of services participating in this BPEL process               
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    --> 
+    <partnerLinks>
+        <!-- 
+      The 'client' role represents the requester of this service. It is 
+      used for callback. The location and correlation information associated
+      with the client role are automatically set using WS-Addressing.
+    -->
+        <partnerLink name="testdbwrite_client" partnerLinkType="client:TestDBWrite" myRole="TestDBWriteProvider" partnerRole="TestDBWriteRequester"/>
+        <partnerLink name="TestDB" partnerRole="TestDB_role"
+                     partnerLinkType="ns1:TestDB_plt"/>
+    </partnerLinks>
+
+    <!-- 
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        VARIABLES                                                        
+        List of messages and XML documents used within this BPEL process 
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    -->
+    <variables>
+        <!-- Reference to the message passed as input during initiation -->
+        <variable name="inputVariable" messageType="client:TestDBWriteRequestMessage"/>
+
+        <!-- Reference to the message that will be sent back to the requester during callback -->
+        <variable name="outputVariable" messageType="client:TestDBWriteResponseMessage"/>
+        <variable name="Invoke_1_insert_InputVariable"
+                  messageType="ns1:TestCollection_msg"/>
+    </variables>
+    <faultHandlers>
+        <catch faultName="bpelx:bindingFault">
+            <empty name="Empty"/>
+        </catch>
+    </faultHandlers>
+    <eventHandlers/>
+    <!-- 
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+       ORCHESTRATION LOGIC                                               
+       Set of activities coordinating the flow of messages across the    
+       services integrated within this business process                  
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    -->
+    <sequence name="main">
+        <!-- Receive input from requestor. (Note: This maps to operation defined in TestDBWrite.wsdl) -->
+        <receive name="receiveInput" partnerLink="testdbwrite_client" portType="client:TestDBWrite" operation="process" variable="inputVariable" createInstance="yes"/>
+
+        <!-- 
+          Asynchronous callback to the requester. (Note: the callback location and correlation id is transparently handled using WS-addressing.)
+        -->
+        <assign name="AssignTest">
+            <copy>
+                <from variable="inputVariable" part="payload"
+                      query="/client:process/client:input"/>
+                <to variable="Invoke_1_insert_InputVariable"
+                    part="TestCollection"
+                    query="/ns2:TestCollection/ns2:Test/ns2:name"/>
+            </copy>
+        </assign>
+        <invoke name="InvokeTest" inputVariable="Invoke_1_insert_InputVariable"
+                partnerLink="TestDB" portType="ns1:TestDB_ptt"
+                operation="insert"/>
+        <invoke name="callbackClient" partnerLink="testdbwrite_client" portType="client:TestDBWriteCallback" operation="processResponse" inputVariable="outputVariable"/>
+    </sequence>
+</process>

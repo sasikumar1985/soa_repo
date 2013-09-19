@@ -1,0 +1,14 @@
+<adapter-config name="TestDB" adapter="Database Adapter" wsdlLocation="TestDB.wsdl" xmlns="http://platform.integration.oracle/blocks/adapter/fw/metadata">
+  
+  <connection-factory location="eis/DB/SOADemo" UIConnectionName="Connection1" adapterRef=""/>
+  <endpoint-interaction portType="TestDB_ptt" operation="insert">
+    <interaction-spec className="oracle.tip.adapter.db.DBWriteInteractionSpec">
+      <property name="DescriptorName" value="TestDB.Test"/>
+      <property name="DmlType" value="insert"/>
+      <property name="MappingsMetaDataURL" value="TestDB-or-mappings.xml"/>
+      <property name="DetectOmissions" value="true"/>
+      <property name="GetActiveUnitOfWork" value="false"/>
+    </interaction-spec>
+  </endpoint-interaction>
+
+</adapter-config>

@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/svn/internal/!svn/ver/38011/soa_management/trunk/ci-hudson/ic-prototype/TestApplication/Project1/xsd
+END
+TestDB_table.xsd
+K 25
+svn:wc:ra_dav:version-url
+V 118
+/svn/internal/!svn/ver/38011/soa_management/trunk/ci-hudson/ic-prototype/TestApplication/Project1/xsd/TestDB_table.xsd
+END
+TestDBWrite.xsd
+K 25
+svn:wc:ra_dav:version-url
+V 117
+/svn/internal/!svn/ver/38011/soa_management/trunk/ci-hudson/ic-prototype/TestApplication/Project1/xsd/TestDBWrite.xsd
+END
